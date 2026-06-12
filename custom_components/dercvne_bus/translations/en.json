@@ -1,0 +1,339 @@
+{
+    "title": "Dercvne Bus",
+    "config": {
+        "flow_title": "Dercvne Bus",
+        "error": {
+            "group_hex": "Group must be a single hex digit (0-F)",
+            "duplicate_device": "This Group+Address is already used by \"{dup_name}\"",
+            "no_connections": "Please add a connection first",
+            "keypad_func_required": "Both Group and Address must be filled when feature is enabled",
+            "invalid_address": "Address must be 4-digit hex XXYY (e.g. 1A2B)",
+            "no_sensors_found": "No new sensors found. Check device connection or select manual add.",
+            "invalid_io_address": "Address must be 2-digit hex (e.g. 33)",
+            "host_required": "IP address cannot be empty",
+            "duplicate_unit": "This indoor unit ID already exists",
+            "id_required": "Indoor unit ID cannot be empty",
+            "name_required": "Name cannot be empty",
+            "vrv_connect_failed": "Unable to connect to VRV controller",
+            "duplicate_vrv": "This connection already has a VRV controller (max 1 per connection)",
+            "invalid_port": "Port must be 0-3",
+            "invalid_group": "Group must be 00-15 (hex)",
+            "invalid_scene": "Scene must be 09-18 (hex)",
+            "at_least_one_sub_required": "At least one sub-function (AC/FH/FA) must be enabled",
+            "invalid_thermostat_address": "Address must be a number 1-64",
+            "duplicate_thermostat_address": "Duplicate sub-function address: {dup_name}",
+            "ac_fa_mutex": "AC and fresh air cannot be enabled at the same time (not supported by the panel)",
+            "no_serial_ports": "No serial ports found. Please insert a USB-to-RS485 adapter and re-enter this page, or manually enter the port path (e.g. /dev/ttyUSB0)"
+        },
+        "step": {
+            "user": {
+                "title": "Connection Type",
+                "description": "Select the connection method for the first DALI module",
+                "data": {
+                    "connection_type": "Connection type"
+                }
+            },
+            "connection_params": {
+                "title": "Connection Parameters",
+                "data": {
+                    "name": "Connection name",
+                    "serial_port": "Serial port",
+                    "baudrate": "Baud rate",
+                    "tcp_host": "TCP host",
+                    "tcp_port": "TCP port"
+                }
+            },
+            "device": {
+                "title": "Add Device",
+                "data": {
+                    "connection_id": "Connection",
+                    "name": "Device name",
+                    "device_type": "Device type"
+                }
+            },
+            "device_config": {
+                "title": "Device Address",
+                "description": "{dup_name}",
+                "data": {
+                    "group": "Group (0-F)",
+                    "address": "Address (00-FF)"
+                }
+            },
+            "device_keypad": {
+                "title": "Keypad Settings (面板配置)",
+                "description": "{dup_name}",
+                "data": {
+                    "panel_address": "Panel Address (面板地址) (00-FF)",
+                    "enable_lock": "Enable Child Lock (启用儿童锁)",
+                    "lock_group": "Child Lock Group (儿童锁 Group) (0-F)",
+                    "lock_address": "Child Lock Address (儿童锁 Address) (00-FF)",
+                    "enable_sleep": "Enable Sleep (启用休眠)",
+                    "sleep_group": "Sleep Group (休眠 Group) (0-F)",
+                    "sleep_address": "Sleep Address (休眠 Address) (00-FF)",
+                    "enable_backlight": "Enable Backlight (启用背光)",
+                    "backlight_group": "Backlight Group (背光 Group) (0-F)",
+                    "backlight_address": "Backlight Address (背光 Address) (00-FF)"
+                }
+            },
+            "add_more": {
+                "title": "Add another device?",
+                "data": {
+                    "add_more": "Add another device"
+                }
+            }
+        }
+    },
+    "options": {
+        "error": {
+            "group_hex": "Group must be a single hex digit (0-F)",
+            "duplicate_device": "This Group+Address is already used by \"{dup_name}\"",
+            "no_connections": "Please add a connection first",
+            "keypad_func_required": "Both Group and Address must be filled when feature is enabled",
+            "invalid_address": "Address must be 4-digit hex XXYY (e.g. 1A2B)",
+            "no_sensors_found": "No new sensors found. Check device connection or select manual add.",
+            "invalid_io_address": "Address must be 2-digit hex (e.g. 33)",
+            "host_required": "IP address cannot be empty",
+            "duplicate_unit": "This indoor unit ID already exists",
+            "id_required": "Indoor unit ID cannot be empty",
+            "name_required": "Name cannot be empty",
+            "vrv_connect_failed": "Unable to connect to VRV controller",
+            "duplicate_vrv": "This connection already has a VRV controller (max 1 per connection)",
+            "invalid_port": "Port must be 0-3",
+            "invalid_group": "Group must be 00-15 (hex)",
+            "invalid_scene": "Scene must be 09-18 (hex)",
+            "at_least_one_sub_required": "At least one sub-function (AC/FH/FA) must be enabled",
+            "invalid_thermostat_address": "Address must be a number 1-64",
+            "duplicate_thermostat_address": "Duplicate sub-function address: {dup_name}"
+        },
+        "step": {
+            "init": {
+                "title": "Dercvne Bus Management",
+                "description": "{device_count} devices, {conn_count} connections.",
+                "data": {
+                    "action": "Action"
+                }
+            },
+            "add_device": {
+                "title": "Add Device",
+                "description": "",
+                "data": {
+                    "connection_id": "Connection",
+                    "name": "Device name",
+                    "device_type": "Device type"
+                }
+            },
+            "add_device_config": {
+                "title": "Device Address",
+                "description": "{dup_name}",
+                "data": {
+                    "group": "Group (0-F)",
+                    "address": "Address (00-FF)"
+                }
+            },
+            "add_device_keypad": {
+                "title": "Keypad Settings (面板配置)",
+                "description": "{dup_name}",
+                "data": {
+                    "panel_address": "Panel Address (面板地址) (00-FF)",
+                    "enable_lock": "Enable Child Lock (启用儿童锁)",
+                    "lock_group": "Child Lock Group (儿童锁 Group) (0-F)",
+                    "lock_address": "Child Lock Address (儿童锁 Address) (00-FF)",
+                    "enable_sleep": "Enable Sleep (启用休眠)",
+                    "sleep_group": "Sleep Group (休眠 Group) (0-F)",
+                    "sleep_address": "Sleep Address (休眠 Address) (00-FF)",
+                    "enable_backlight": "Enable Backlight (启用背光)",
+                    "backlight_group": "Backlight Group (背光 Group) (0-F)",
+                    "backlight_address": "Backlight Address (背光 Address) (00-FF)"
+                }
+            },
+            "add_device_dali_scene": {
+                "title": "DALI Scene Address",
+                "description": "{dup_name}",
+                "data": {
+                    "port": "Port (0-3)",
+                    "group": "Group (00-15)",
+                    "scene": "Scene (09-18)"
+                }
+            },
+            "add_device_thermostat": {
+                "title": "Thermostat Panel Configuration",
+                "description": "{dup_name}",
+                "data": {
+                    "enable_ac": "Enable AC",
+                    "ac_address": "AC Address (1-64)",
+                    "enable_fh": "Enable Floor Heating",
+                    "fh_address": "FH Address (1-64)",
+                    "enable_fa": "Enable Fresh Air",
+                    "fa_address": "FA Address (1-64)"
+                }
+            },
+            "add_device_more": {
+                "title": "Add another device?",
+                "data": {
+                    "add_more": "Add another device"
+                }
+            },
+            "manage_devices": {
+                "title": "Manage Devices",
+                "description": "{page_info}\n\n{device_list}",
+                "data": {
+                    "action": "Select device"
+                }
+            },
+            "device_action": {
+                "title": "Device Action",
+                "description": "Device: {device_name}\nType: {device_type}\nGroup: {device_group}  Address: {device_address}\nConnection: {conn_name}",
+                "data": {
+                    "action": "Select action"
+                }
+            },
+            "edit_device": {
+                "title": "Edit Device",
+                "data": {
+                    "connection_id": "Connection",
+                    "name": "Device name",
+                    "device_type": "Device type",
+                    "group": "Group (0-F)",
+                    "address": "Address (00-FF)",
+                    "panel_address": "Panel Address (面板地址) (00-FF)",
+                    "enable_lock": "Enable Child Lock (启用儿童锁)",
+                    "lock_group": "Child Lock Group (儿童锁 Group) (0-F)",
+                    "lock_address": "Child Lock Address (儿童锁 Address) (00-FF)",
+                    "enable_sleep": "Enable Sleep (启用休眠)",
+                    "sleep_group": "Sleep Group (休眠 Group) (0-F)",
+                    "sleep_address": "Sleep Address (休眠 Address) (00-FF)",
+                    "enable_backlight": "Enable Backlight (启用背光)",
+                    "backlight_group": "Backlight Group (背光 Group) (0-F)",
+                    "backlight_address": "Backlight Address (背光 Address) (00-FF)",
+                    "enable_ac": "Enable AC",
+                    "ac_address": "AC Address (1-64)",
+                    "enable_fh": "Enable Floor Heating",
+                    "fh_address": "FH Address (1-64)",
+                    "enable_fa": "Enable Fresh Air",
+                    "fa_address": "FA Address (1-64)"
+                }
+            },
+            "confirm_delete_device": {
+                "title": "Confirm Delete Device",
+                "description": "Delete device \"{device_name}\" ({device_type})? This cannot be undone.",
+                "data": {
+                    "confirm": "Confirm delete"
+                }
+            },
+            "manage_connections": {
+                "title": "Manage Connections",
+                "description": "{page_info}\n\n{conn_list}",
+                "data": {
+                    "action": "Select connection"
+                }
+            },
+            "connection_action": {
+                "title": "Connection Action",
+                "description": "Connection: {conn_name}\n{conn_detail}\nDevices: {dev_count}",
+                "data": {
+                    "action": "Select action"
+                }
+            },
+            "edit_connection": {
+                "title": "Edit Connection",
+                "description": "Edit \"{conn_name}\". {dev_count} associated devices are not affected.",
+                "data": {
+                    "name": "Connection name",
+                    "connection_type": "Connection type",
+                    "serial_port": "Serial port",
+                    "baudrate": "Baud rate",
+                    "tcp_host": "TCP host",
+                    "tcp_port": "TCP port"
+                }
+            },
+            "add_connection": {
+                "title": "Add Connection — Select Type",
+                "data": {
+                    "connection_type": "Connection type"
+                }
+            },
+            "add_connection_params": {
+                "title": "Add Connection — Parameters",
+                "data": {
+                    "name": "Connection name",
+                    "serial_port": "Serial port",
+                    "baudrate": "Baud rate",
+                    "tcp_host": "TCP host",
+                    "tcp_port": "TCP port"
+                }
+            },
+            "confirm_delete_connection": {
+                "title": "Confirm Delete Connection",
+                "description": "Delete connection \"{conn_name}\"?\n\n\u26a0\ufe0f {affected_count} device(s) will also be deleted: {affected_names}",
+                "data": {
+                    "confirm": "Confirm delete connection and all its devices"
+                }
+            },
+            "manage_vrv": {
+                "title": "VRV Controller Management",
+                "description": "{vrv_info}",
+                "data": {
+                    "action": "Select VRV controller"
+                }
+            },
+            "add_vrv": {
+                "title": "Add VRV Controller",
+                "description": "Select the RS485 connection this controller is connected to",
+                "data": {
+                    "name": "Controller name",
+                    "connection_id": "Connection"
+                }
+            },
+            "vrv_action": {
+                "title": "VRV Controller Actions",
+                "description": "Controller: {vrv_name}\nConnection: {conn_info}\nIndoor units: {unit_count}\n\n{unit_info}",
+                "data": {
+                    "action": "Select action"
+                }
+            },
+            "edit_vrv": {
+                "title": "Edit VRV Controller",
+                "data": {
+                    "name": "Controller name",
+                    "connection_id": "Connection"
+                }
+            },
+            "delete_vrv_confirm": {
+                "title": "Confirm Delete VRV Controller",
+                "description": "Delete VRV controller \"{vrv_name}\"?\n\n\u26a0\ufe0f All {unit_count} indoor units will also be deleted. This cannot be undone.",
+                "data": {
+                    "confirm": "Confirm delete controller and all indoor units"
+                }
+            },
+            "vrv_scan": {
+                "title": "Scan Indoor Units",
+                "description": "Scan result: {scan_result}\n\nSelect units to add",
+                "data": {
+                    "selected_units": "Select indoor units"
+                }
+            },
+            "vrv_add_indoor": {
+                "title": "Add Indoor Unit Manually",
+                "description": "Enter indoor unit ID and name",
+                "data": {
+                    "unit_id": "Indoor unit ID",
+                    "name": "Indoor unit name"
+                }
+            },
+            "vrv_indoor_action": {
+                "title": "Indoor Unit Actions",
+                "description": "Unit: {unit_name}\nID: {unit_id}",
+                "data": {
+                    "action": "Select action"
+                }
+            },
+            "vrv_edit_indoor": {
+                "title": "Edit Indoor Unit",
+                "data": {
+                    "name": "Indoor unit name",
+                    "unit_id": "Indoor unit address"
+                }
+            }
+        }
+    }
+}
