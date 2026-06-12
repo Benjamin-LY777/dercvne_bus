@@ -5,6 +5,7 @@ import logging
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.helpers import device_registry as dr
 
@@ -14,6 +15,8 @@ from .config_flow import _migrate_data
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS = ["switch", "light", "scene", "cover", "sensor", "binary_sensor", "climate", "fan"]
+
+CONFIG_SCHEMA = cv.empty_config_schema()
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
