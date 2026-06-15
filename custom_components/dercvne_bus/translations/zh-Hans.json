@@ -1,0 +1,411 @@
+{
+    "title": "Dercvne Bus",
+    "entity": {
+        "binary_sensor": {
+            "sh_808r_s": {
+                "state": {
+                    "on": "探测到有人",
+                    "off": "探测到无人"
+                }
+            }
+        }
+    },
+    "config": {
+        "flow_title": "Dercvne Bus",
+        "error": {
+            "group_hex": "Group 必须是单个十六进制数字 (0-F)",
+            "duplicate_device": "该 Group+Address 已被「{dup_name}」使用，请更换地址",
+            "no_connections": "请先添加连接",
+            "keypad_func_required": "启用该功能后，Group 和 Address 都必须填写",
+            "invalid_address": "感应器地址必须是4位十六进制数字 XXYY (如 1A2B)",
+            "invalid_device_address": "地址格式错误，请输入 00-FF 的两位十六进制数（如 01、AF）",
+            "no_sensors_found": "未搜索到新的感应器，请检查设备是否已连接，或选择手动添加。",
+            "invalid_io_address": "地址必须是2位十六进制数字 (如 33)",
+            "host_required": "IP地址不能为空",
+            "duplicate_unit": "该内机 ID 已存在",
+            "id_required": "内机 ID 不能为空",
+            "name_required": "名称不能为空",
+            "vrv_connect_failed": "无法连接到VRV控制器",
+            "duplicate_vrv": "该连接已绑定 VRV 控制器（每个连接最多一个）",
+            "invalid_port": "路号必须是 0-3",
+            "invalid_group": "组号必须是 00-15 (hex)",
+            "invalid_scene": "场景号必须是 09-18 (hex)",
+            "at_least_one_sub_required": "至少需要启用一个子功能（空调/地暖/新风）",
+            "invalid_thermostat_address": "地址必须是 1-64 的数字",
+            "duplicate_thermostat_address": "子功能地址重复：{dup_name}",
+            "ac_fa_mutex": "空调和新风不能同时使用（面板不支持同时启用）",
+            "no_serial_ports": "未找到串口设备。请插入 USB 转 485 适配器后重新进入此页面，或手动输入串口路径（如 /dev/ttyUSB0）"
+        },
+        "step": {
+            "user": {
+                "title": "连接类型",
+                "description": "选择第一个设备的连接方式",
+                "data": {
+                    "connection_type": "连接类型"
+                }
+            },
+            "connection_params": {
+                "title": "连接参数",
+                "description": "填写连接信息",
+                "data": {
+                    "name": "连接名称",
+                    "serial_port": "串口",
+                    "baudrate": "波特率",
+                    "tcp_host": "TCP 主机",
+                    "tcp_port": "TCP 端口"
+                }
+            },
+            "device": {
+                "title": "添加设备",
+                "data": {
+                    "connection_id": "所属连接",
+                    "name": "设备名称",
+                    "device_type": "设备类型",
+                    "device_type.options.light_rgbcw": "DM2 RGBCW灯（RGBCW 灯）",
+                    "device_type.options.dm2_single": "DM2 单色温灯",
+                    "device_type.options.dm2_cct": "DM2 双色温灯"
+                }
+            },
+            "device_config": {
+                "title": "设备地址",
+                "description": "{dup_name}",
+                "data": {
+                    "group": "Group (0-F)",
+                    "address": "Address (00-FF)"
+                }
+            },
+            "device_keypad": {
+                "title": "面板配置 (Keypad Settings)",
+                "description": "{dup_name}",
+                "data": {
+                    "panel_address": "面板地址 Panel Address (00-FF)",
+                    "enable_lock": "启用儿童锁 Enable Child Lock",
+                    "lock_group": "儿童锁 Group Child Lock Group (0-F)",
+                    "lock_address": "儿童锁 Address Child Lock Address (00-FF)",
+                    "enable_sleep": "启用休眠 Enable Sleep",
+                    "sleep_group": "休眠 Group Sleep Group (0-F)",
+                    "sleep_address": "休眠 Address Sleep Address (00-FF)",
+                    "enable_backlight": "启用背光 Enable Backlight",
+                    "backlight_group": "背光 Group Backlight Group (0-F)",
+                    "backlight_address": "背光 Address Backlight Address (00-FF)"
+                }
+            },
+            "device_io_module": {
+                "title": "IO模块地址",
+                "description": "{dup_name}",
+                "data": {
+                    "address": "模块地址 (00-FF)"
+                }
+            },
+            "device_occupancy": {
+                "title": "感应器 SH-808R-S",
+                "description": "型号: {model_name}\n\n请选择添加方式。",
+                "data": {
+                    "mode": "添加方式"
+                }
+            },
+            "device_occupancy_search": {
+                "title": "搜索感应器 SH-808R-S",
+                "description": "型号: {model_name}\n\n已从总线搜索到以下感应器（已存在的已自动过滤）。",
+                "data": {
+                    "select_sensor": "选择要添加的感应器"
+                }
+            },
+            "device_occupancy_manual": {
+                "title": "手动添加感应器 SH-808R-S",
+                "description": "型号: {model_name}\n\n请输入4位十六进制地址 (XXYY)。",
+                "data": {
+                    "address": "感应器地址 (XXYY)"
+                }
+            },
+            "add_more": {
+                "title": "是否继续添加设备？",
+                "data": {
+                    "add_more": "继续添加设备"
+                }
+            }
+        }
+    },
+    "options": {
+        "error": {
+            "group_hex": "Group 必须是单个十六进制数字 (0-F)",
+            "duplicate_device": "该 Group+Address 已被「{dup_name}」使用，请更换地址",
+            "no_connections": "请先添加连接",
+            "keypad_func_required": "启用该功能后，Group 和 Address 都必须填写",
+            "invalid_address": "感应器地址必须是4位十六进制数字 XXYY (如 1A2B)",
+            "invalid_device_address": "地址格式错误，请输入 00-FF 的两位十六进制数（如 01、AF）",
+            "no_sensors_found": "未搜索到新的感应器，请检查设备是否已连接，或选择手动添加。",
+            "invalid_io_address": "地址必须是2位十六进制数字 (如 33)",
+            "host_required": "IP地址不能为空",
+            "duplicate_unit": "该内机 ID 已存在",
+            "id_required": "内机 ID 不能为空",
+            "name_required": "名称不能为空",
+            "vrv_connect_failed": "无法连接到VRV控制器",
+            "duplicate_vrv": "该连接已绑定 VRV 控制器（每个连接最多一个）",
+            "invalid_port": "路号必须是 0-3",
+            "invalid_group": "组号必须是 00-15 (hex)",
+            "invalid_scene": "场景号必须是 09-18 (hex)",
+            "at_least_one_sub_required": "至少需要启用一个子功能（空调/地暖/新风）",
+            "invalid_thermostat_address": "地址必须是 1-64 的数字",
+            "duplicate_thermostat_address": "子功能地址重复：{dup_name}"
+        },
+        "step": {
+            "init": {
+                "title": "Dercvne Bus 管理",
+                "description": "当前共 {device_count} 个设备，{conn_count} 个连接。",
+                "data": {
+                    "action": "操作"
+                }
+            },
+            "add_device": {
+                "title": "添加设备",
+                "description": "",
+                "data": {
+                    "connection_id": "所属连接",
+                    "name": "设备名称",
+                    "device_type": "设备类型"
+                }
+            },
+            "add_device_config": {
+                "title": "设备地址",
+                "description": "{dup_name}",
+                "data": {
+                    "group": "Group (0-F)",
+                    "address": "Address (00-FF)"
+                }
+            },
+            "add_device_keypad": {
+                "title": "面板配置 (Keypad Settings)",
+                "description": "{dup_name}",
+                "data": {
+                    "panel_address": "面板地址 Panel Address (00-FF)",
+                    "enable_lock": "启用儿童锁 Enable Child Lock",
+                    "lock_group": "儿童锁 Group Child Lock Group (0-F)",
+                    "lock_address": "儿童锁 Address Child Lock Address (00-FF)",
+                    "enable_sleep": "启用休眠 Enable Sleep",
+                    "sleep_group": "休眠 Group Sleep Group (0-F)",
+                    "sleep_address": "休眠 Address Sleep Address (00-FF)",
+                    "enable_backlight": "启用背光 Enable Backlight",
+                    "backlight_group": "背光 Group Backlight Group (0-F)",
+                    "backlight_address": "背光 Address Backlight Address (00-FF)"
+                }
+            },
+            "add_device_occupancy": {
+                "title": "感应器 SH-808R-S",
+                "description": "型号: {model_name}\n\n请选择添加方式。",
+                "data": {
+                    "mode": "添加方式"
+                }
+            },
+            "add_device_io_module": {
+                "title": "IO模块地址",
+                "description": "{dup_name}",
+                "data": {
+                    "address": "模块地址 (00-FF)"
+                }
+            },
+            "add_device_dali_scene": {
+                "title": "DALI场景地址",
+                "description": "{dup_name}",
+                "data": {
+                    "port": "路号 Port (0-3)",
+                    "group": "组号 Group (00-15)",
+                    "scene": "场景号 Scene (09-18)"
+                }
+            },
+            "add_device_thermostat": {
+                "title": "温控面板配置",
+                "description": "{dup_name}",
+                "data": {
+                    "enable_ac": "启用空调 AC",
+                    "ac_address": "空调地址 (1-64)",
+                    "enable_fh": "启用地暖 FH",
+                    "fh_address": "地暖地址 (1-64)",
+                    "enable_fa": "启用新风 FA",
+                    "fa_address": "新风地址 (1-64)"
+                }
+            },
+            "add_device_occupancy_search": {
+                "title": "搜索感应器 SH-808R-S",
+                "description": "型号: {model_name}\n\n已从总线搜索到以下感应器（已存在的已自动过滤）。",
+                "data": {
+                    "select_sensor": "选择要添加的感应器"
+                }
+            },
+            "add_device_occupancy_manual": {
+                "title": "手动添加感应器 SH-808R-S",
+                "description": "型号: {model_name}\n\n请输入4位十六进制地址 (XXYY)。",
+                "data": {
+                    "address": "感应器地址 (XXYY)"
+                }
+            },
+            "add_device_more": {
+                "title": "是否继续添加设备？",
+                "data": {
+                    "add_more": "继续添加设备"
+                }
+            },
+            "manage_devices": {
+                "title": "管理设备",
+                "description": "{page_info}\n\n{device_list}",
+                "data": {
+                    "action": "选择设备"
+                }
+            },
+            "device_action": {
+                "title": "设备操作",
+                "description": "设备: {device_name}\n类型: {device_type}\n组: {device_group}  地址: {device_address}\n连接: {conn_name}",
+                "data": {
+                    "action": "选择操作"
+                }
+            },
+            "edit_device": {
+                "title": "编辑设备",
+                "data": {
+                    "connection_id": "所属连接",
+                    "name": "设备名称",
+                    "device_type": "设备类型",
+                    "group": "Group (0-F)",
+                    "address": "Address (00-FF)",
+                    "panel_address": "面板地址 Panel Address (00-FF)",
+                    "enable_lock": "启用儿童锁 Enable Child Lock",
+                    "lock_group": "儿童锁 Group Child Lock Group (0-F)",
+                    "lock_address": "儿童锁 Address Child Lock Address (00-FF)",
+                    "enable_sleep": "启用休眠 Enable Sleep",
+                    "sleep_group": "休眠 Group Sleep Group (0-F)",
+                    "sleep_address": "休眠 Address Sleep Address (00-FF)",
+                    "enable_backlight": "启用背光 Enable Backlight",
+                    "backlight_group": "背光 Group Backlight Group (0-F)",
+                    "backlight_address": "背光 Address Backlight Address (00-FF)",
+                    "enable_ac": "启用空调 AC",
+                    "ac_address": "空调地址 (1-64)",
+                    "enable_fh": "启用地暖 FH",
+                    "fh_address": "地暖地址 (1-64)",
+                    "enable_fa": "启用新风 FA",
+                    "fa_address": "新风地址 (1-64)"
+                }
+            },
+            "confirm_delete_device": {
+                "title": "确认删除设备",
+                "description": "确定要删除设备「{device_name}」({device_type}) 吗？此操作不可撤销。",
+                "data": {
+                    "confirm": "确认删除"
+                }
+            },
+            "manage_connections": {
+                "title": "管理连接",
+                "description": "{page_info}\n\n{conn_list}",
+                "data": {
+                    "action": "选择连接"
+                }
+            },
+            "connection_action": {
+                "title": "连接操作",
+                "description": "连接: {conn_name}\n{conn_detail}\n关联设备数: {dev_count}",
+                "data": {
+                    "action": "选择操作"
+                }
+            },
+            "edit_connection": {
+                "title": "编辑连接",
+                "description": "修改「{conn_name}」的连接方式或参数。关联的 {dev_count} 个设备不受影响。",
+                "data": {
+                    "name": "连接名称",
+                    "connection_type": "连接类型",
+                    "serial_port": "串口",
+                    "baudrate": "波特率",
+                    "tcp_host": "TCP 主机",
+                    "tcp_port": "TCP 端口"
+                }
+            },
+            "add_connection": {
+                "title": "添加连接 — 选择类型",
+                "data": {
+                    "connection_type": "连接类型"
+                }
+            },
+            "add_connection_params": {
+                "title": "添加连接 — 参数",
+                "data": {
+                    "name": "连接名称",
+                    "serial_port": "串口",
+                    "baudrate": "波特率",
+                    "tcp_host": "TCP 主机",
+                    "tcp_port": "TCP 端口"
+                }
+            },
+            "confirm_delete_connection": {
+                "title": "确认删除连接",
+                "description": "确定要删除连接「{conn_name}」吗？\n\n⚠️ 此连接下有 {affected_count} 个设备将同时被删除：{affected_names}",
+                "data": {
+                    "confirm": "确认删除连接及其所有设备"
+                }
+            },
+            "manage_vrv": {
+                "title": "VRV空调控制器管理",
+                "description": "{vrv_info}",
+                "data": {
+                    "action": "选择VRV控制器"
+                }
+            },
+            "add_vrv": {
+                "title": "添加 VRV 空调控制器",
+                "description": "选择控制器绑定的网转串连接（控制器通过 RS485 总线通信）",
+                "data": {
+                    "name": "控制器名称",
+                    "connection_id": "所属连接"
+                }
+            },
+            "vrv_action": {
+                "title": "VRV 控制器操作",
+                "description": "控制器: {vrv_name}\n连接: {conn_info}\n内机数量: {unit_count}\n\n{unit_info}",
+                "data": {
+                    "action": "请选择要执行的操作"
+                }
+            },
+            "edit_vrv": {
+                "title": "编辑 VRV 控制器",
+                "data": {
+                    "name": "控制器名称",
+                    "connection_id": "所属连接"
+                }
+            },
+            "delete_vrv_confirm": {
+                "title": "确认删除 VRV 控制器",
+                "description": "确定要删除 VRV 控制器「{vrv_name}」吗？\n\n⚠️ 同时会删除所有 {unit_count} 台内机。此操作不可撤销。",
+                "data": {
+                    "confirm": "确认删除控制器及所有内机"
+                }
+            },
+            "vrv_scan": {
+                "title": "搜索内机",
+                "description": "扫描结果: {scan_result}\n\n请选择要添加的内机",
+                "data": {
+                    "selected_units": "选择内机"
+                }
+            },
+            "vrv_add_indoor": {
+                "title": "手动添加内机",
+                "description": "输入内机 ID 和名称",
+                "data": {
+                    "unit_id": "内机 ID",
+                    "name": "内机名称"
+                }
+            },
+            "vrv_indoor_action": {
+                "title": "内机操作",
+                "description": "内机: {unit_name}\nID: {unit_id}",
+                "data": {
+                    "action": "选择操作"
+                }
+            },
+            "vrv_edit_indoor": {
+                "title": "编辑内机",
+                "data": {
+                    "name": "内机名称",
+                    "unit_id": "内机地址"
+                }
+            }
+        }
+    }
+}
