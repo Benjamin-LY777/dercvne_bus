@@ -956,75 +956,28 @@ class DALIOptionsFlow(config_entries.OptionsFlow):
     # ------------------------------------------------------------------ helpers
 
     async def _apply_and_reload(self):
-        """Save current state back to entry.data and reload."""
+        """Save current state back to entry.data and reload.
+
+        Uses HA's official config-entries API only — never touches the
+        .storage/core.config_entries file directly (which can corrupt a
+        user's setup). See HACS review feedback on PR #8426.
+        """
         import logging
-        import json
-        _LOGGER = logging.getLogger(__name__)
         entry = self._config_entry
         new_data = dict(entry.data)
         new_data["connections"] = self._connections
         new_data["devices"] = self._devices
 
-        # Dump vrv_indoor unit_ids before save
-        vrv_units = [(d.get("name", "?"), d.get("unit_id", "?"))
-                     for d in self._devices
-                     if d.get("device_type") == "vrv_indoor"]
-        _LOGGER.warning(
-            "Options: saving %d devices, vrv units: %s",
-            len(self._devices), vrv_units,
+        _LOGGER.debug(
+            "Options: saving %d devices",
+            len(self._devices),
         )
 
-        # Step 1: Update entry in memory (this also schedules a debounced save)
+        # Update entry via the official API. HA will persist to
+        # .storage/core.config_entries through its own debounced save.
         self.hass.config_entries.async_update_entry(entry, data=new_data)
 
-        # Verify the update took effect in the entry object
-        verify_units = [(d.get("name", "?"), d.get("unit_id", "?"))
-                        for d in entry.data.get("devices", [])
-                        if d.get("device_type") == "vrv_indoor"]
-        _LOGGER.warning(
-            "Options: after update_entry, entry devices vrv units: %s",
-            verify_units,
-        )
-
-        # Step 2: Wait for HA's debounced save (SAVE_DELAY=1s) to fire and flush to disk
-        await asyncio.sleep(2.0)
-
-        # Step 3: Directly patch the storage file on disk to guarantee persistence.
-        # This is a belt-and-suspenders approach: even if HA's debounced save
-        # somehow wrote old data, we rewrite with the correct data.
-        store_path = self.hass.config.path(".storage/core.config_entries")
-
-        def _patch_config_file() -> bool:
-            try:
-                with open(store_path, "r", encoding="utf-8") as f:
-                    config = json.load(f)
-                for e in config["data"]["entries"]:
-                    if e["entry_id"] == entry.entry_id:
-                        e["data"] = new_data
-                        break
-                with open(store_path, "w", encoding="utf-8") as f:
-                    json.dump(config, f, indent=4, ensure_ascii=False)
-                return True
-            except Exception as exc:
-                _LOGGER.error("Options: failed to patch config file: %s", exc)
-                return False
-
-        patched = await self.hass.async_add_executor_job(_patch_config_file)
-        _LOGGER.warning("Options: patched config file: %s", patched)
-
         await self.hass.config_entries.async_reload(entry.entry_id)
-
-        # Verify after reload
-        reload_entry = self.hass.config_entries.async_get_entry(entry.entry_id)
-        if reload_entry:
-            reload_units = [(d.get("name", "?"), d.get("unit_id", "?"))
-                            for d in reload_entry.data.get("devices", [])
-                            if d.get("device_type") == "vrv_indoor"]
-            _LOGGER.warning(
-                "Options: after reload, entry devices vrv units: %s",
-                reload_units,
-            )
-
         return self.async_create_entry(title="", data={})
 
     # ------------------------------------------------------------------ main menu
