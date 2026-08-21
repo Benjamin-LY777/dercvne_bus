@@ -148,12 +148,6 @@ class ThermostatDevice:
         dev_id = parsed.get("dev_id", 0)
         power = parsed.get("power")
         mode = parsed.get("mode")
-        _LOGGER.warning(
-            "[DIAG] ThermostatDevice.update_state: sub=%s dev_id=%d power=%s mode=%s temp=%.1f/%.1f fan=%s",
-            sub, dev_id, power, mode,
-            parsed.get("current_temp", 0), parsed.get("target_temp", 0),
-            parsed.get("fan_speed", "?"),
-        )
 
         if sub == "fa":
             sub = "fresh_air"
@@ -167,11 +161,6 @@ class ThermostatDevice:
                 matched_sub = s_name
                 break
 
-        _LOGGER.warning(
-            "[DIAG] ThermostatDevice.update_state: matched_sub=%s, registered_entities=%s",
-            matched_sub, list(self._entities.keys()),
-        )
-
         if matched_sub:
             self._states[matched_sub] = parsed
             _LOGGER.debug(
@@ -184,15 +173,11 @@ class ThermostatDevice:
             # Notify the registered entity so HA UI updates immediately
             entity = self._entities.get(matched_sub)
             if entity:
-                _LOGGER.warning(
-                    "[DIAG] ThermostatDevice.update_state: calling entity.update_status() for %s",
-                    matched_sub,
-                )
                 entity.update_status(parsed)
             else:
-                _LOGGER.warning(
-                    "[DIAG] ThermostatDevice.update_state: NO entity registered for %s (registered: %s)",
-                    matched_sub, list(self._entities.keys()),
+                _LOGGER.debug(
+                    "Thermostat %s: no entity registered for sub %s",
+                    self.name, matched_sub,
                 )
 
     def get_state(self, sub: str) -> dict:

@@ -56,8 +56,15 @@ class SerialTransport(DALITransport):
             if hasattr(serial.Serial, "exclusive"):
                 kwargs["exclusive"] = True
 
-            self._serial = serial.Serial(**kwargs)
+            # Opening a serial port is a blocking syscall (DTR/RTS handshake,
+            # termios setup, etc.).  Run it in an executor so the asyncio
+            # event loop is never blocked while the port initializes.
+            loop = asyncio.get_running_loop()
 
+            def _open_port() -> "serial.Serial":
+                return serial.Serial(**kwargs)
+
+            self._serial = await loop.run_in_executor(None, _open_port)
             # Flush stale buffers
             try:
                 self._serial.flushInput()

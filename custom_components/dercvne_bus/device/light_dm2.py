@@ -12,6 +12,7 @@ import logging
 import asyncio
 
 from .light import DALILight
+from ..const import COLOR_TEMP_MIN_K, COLOR_TEMP_MAX_K
 from ..protocol.encoder import DALICommandEncoder
 
 _LOGGER = logging.getLogger(__name__)

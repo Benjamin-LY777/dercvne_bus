@@ -434,6 +434,22 @@ class DALIConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._device_temp: Optional[dict] = None  # partial non-keypad data between steps
         self._dup_device_name: Optional[str] = None
 
+    def _build_serial_port_schema(self, errors: dict, current_port: str = None):
+        """Build the vol validator for the serial-port dropdown field.
+
+        Scans available serial ports and returns a ``vol.In(...)`` validator,
+        or ``str`` when none are found (recording a ``no_serial_ports`` error).
+        Shared by every connection step so the scan/presentation logic lives
+        in exactly one place.
+        """
+        port_options = _get_serial_ports(
+            current_port=current_port, all_connections=self._connections
+        )
+        if not port_options:
+            errors["base"] = "no_serial_ports"
+            return str
+        return vol.In(port_options)
+
     # ---- step 1: add first connection ----
 
     async def async_step_user(self, user_input: Optional[Dict[str, Any]] = None):
@@ -486,12 +502,7 @@ class DALIConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             })
         else:
             # Serial only
-            port_options = _get_serial_ports(all_connections=self._connections)
-            if not port_options:
-                errors["base"] = "no_serial_ports"
-                port_validator = str
-            else:
-                port_validator = vol.In(port_options)
+            port_validator = self._build_serial_port_schema(errors)
 
             schema = vol.Schema({
                 vol.Required("name", default="连接1"): str,
@@ -2408,15 +2419,9 @@ class DALIOptionsFlow(config_entries.OptionsFlow):
             })
         else:
             # Serial: build port options for dropdown
-            port_options = _get_serial_ports(
-                current_port=current_port,
-                all_connections=self._connections,
+            port_validator = self._build_serial_port_schema(
+                errors, current_port=current_port
             )
-            if not port_options:
-                errors["base"] = "no_serial_ports"
-                port_validator = str
-            else:
-                port_validator = vol.In(port_options)
 
             schema = vol.Schema({
                 vol.Required("name", default=conn.get("name", "")): str,
@@ -2492,12 +2497,7 @@ class DALIOptionsFlow(config_entries.OptionsFlow):
             })
         else:
             # Serial only: show name, type, serial_port, baudrate
-            port_options = _get_serial_ports(all_connections=self._connections)
-            if not port_options:
-                errors["base"] = "no_serial_ports"
-                port_validator = str
-            else:
-                port_validator = vol.In(port_options)
+            port_validator = self._build_serial_port_schema(errors)
 
             schema = vol.Schema({
                 vol.Required("name", default=f"连接{len(self._connections) + 1}"): str,

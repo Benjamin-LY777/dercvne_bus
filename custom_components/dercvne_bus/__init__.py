@@ -996,25 +996,6 @@ async def _feedback_listener(hass, entry, conn_id, transport, entity_registry):
                             conn_id, group, addr,
                         )
 
-                elif evt_type == "rgb":
-                    # RGBCW RGB feedback: R, G, B values
-                    group = evt.get("group", "")
-                    addr = evt.get("addr", "")
-                    r = evt.get("r", 0)
-                    g = evt.get("g", 0)
-                    b = evt.get("b", 0)
-                    key = (group, addr)
-                    if key in entity_registry:
-                        entity = entity_registry[key]
-                        entity.handle_feedback(r=r, g=g, b=b)
-                        _LOGGER.debug(
-                            "RGB Feedback [%s] G=%s A=%s -> R=%d G=%d B=%d",
-                            conn_id, group, addr, r, g, b,
-                        )
-                    else:
-                        _LOGGER.debug("No entity for RGB [%s] G=%s A=%s", conn_id, group, addr)
-
-
             # ── Parse occupancy sensor (SH-808R-S) status frames ──
             # Status frame format (9 bytes):
             #   00 00 00 00 00 XX YY TT SS
