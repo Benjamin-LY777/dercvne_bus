@@ -18,7 +18,12 @@ from homeassistant.const import UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from ..const import DOMAIN, DEVICE_TYPE_VRV_CONTROLLER, DEVICE_TYPE_THERMOSTAT
+from ..const import (
+    DOMAIN,
+    DEVICE_TYPE_VRV_CONTROLLER,
+    DEVICE_TYPE_VRV_INDOOR,
+    DEVICE_TYPE_THERMOSTAT,
+)
 from ..device.vrv_controller import VRVController
 from ..config_flow import _migrate_data
 
