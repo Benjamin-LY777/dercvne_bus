@@ -292,6 +292,36 @@ logger:
 
 ## 更新日志
 
+### v1.3.9 (2026-10-20)
+- 补齐 v1.3.4-v1.3.8 更新日志
+
+### v1.3.8 (2026-10-20)
+- README 安装章节改版：已上架 HACS 默认仓库，安装说明改为「在 HACS 中搜索 Dercvne Bus」优先，自定义仓库安装降为备选方案
+
+### v1.3.7 (2026-10-20)
+- 串口文件系统扫描改为在 executor 线程执行，不再阻塞 HA 事件循环；串口下拉框构建改为共享的模块级异步函数
+- 修复编辑/添加串口连接时 options flow 崩溃（AttributeError）的问题
+- reload 集成不再清空实体注册表，实体改名、区域分配和自动化引用全部保留
+- 移除会误删其他集成配置条目的清理逻辑，并从 manifest 移除 switch_as_x 依赖
+- 修复 DM2 RGBCW 灯接收亮度/RGB 反馈帧时的 TypeError
+- VRV 内机扫描改用正确的 tcp_host/tcp_port 字段（此前连接到空地址）
+- 清理 41 个误提交的 .pyc 文件和重复的根目录图标，brand 图标重建为 256×256 正方形
+- hacs.json 增加 "country": ["CN"]
+
+### v1.3.6 (2026-08-21)
+- 修复 __init__.py 与 entities/climate.py 缺少的常量导入（NameError）
+- serial_transport 协程内改用 asyncio.get_running_loop()
+
+### v1.3.5 (2026-08-21)
+- 串口打开操作移入 executor，避免阻塞事件循环
+- config_flow 串口下拉构建逻辑去重（提取为共享函数）
+- 修复 device/light_dm2.py 色温常量导入问题
+- 清理温控面板冗余告警日志和 RGB 反馈死代码分支
+
+### v1.3.4 (2026-08-01)
+- 改用 hass.config_entries.async_update_entry() API，不再直接改写 .storage/core.config_entries 文件
+- 添加 MIT LICENSE
+
 ### v1.3.3 (2026-06-15)
 - **设备类型重构**：DALI单色温/双色温与DM2系列分离为独立设备类型
   - 原「单色温灯」→「DALI 单色温灯」（Class=0固定，group+1调色温技巧）
