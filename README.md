@@ -25,18 +25,23 @@
 
 ### 方法 1：HACS 安装（推荐）
 
-> ⚠️ 首次上架需等待 HACS 审核（约 1-7 天）
->
-> 审核期间可通过**自定义仓库**方式安装：
+Dercvne Bus 已上架 HACS 默认仓库，无需添加自定义仓库，直接搜索安装：
 
 1. 在 Home Assistant 中打开 **HACS**
-2. 点击右上角三个点 → **Custom repositories**
-3. 填写：
-   - **Repository URL**: `https://github.com/Benjamin-LY777/dercvne_bus`
-   - **Category**: `Integration`
-4. 点击 **ADD**
-5. 返回 HACS 主页面，搜索 **Dercvne Bus**，点击安装
-6. 重启 Home Assistant
+2. 搜索 **Dercvne Bus**
+3. 点击 **Download**（下载）并确认安装
+4. 重启 Home Assistant
+
+> **备选：自定义仓库安装**（上架同步有最多 8 小时延迟，搜索不到时使用）
+>
+> 1. 在 Home Assistant 中打开 **HACS**
+> 2. 点击右上角三个点 → **Custom repositories**
+> 3. 填写：
+>    - **Repository URL**: `https://github.com/Benjamin-LY777/dercvne_bus`
+>    - **Category**: `Integration`
+> 4. 点击 **ADD**
+> 5. 返回 HACS 主页面，搜索 **Dercvne Bus**，点击安装
+> 6. 重启 Home Assistant
 
 ### 方法 2：手动安装
 
