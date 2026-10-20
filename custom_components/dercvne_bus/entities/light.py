@@ -26,6 +26,24 @@ from ..config_flow import _migrate_data
 _LOGGER = logging.getLogger(__name__)
 
 
+def _rgb_to_hs(r: int, g: int, b: int) -> tuple:
+    """Convert an 8-bit RGB triple to ``(hue 0-360, saturation 0-100)``."""
+    r01, g01, b01 = r / 255.0, g / 255.0, b / 255.0
+    max_c = max(r01, g01, b01)
+    min_c = min(r01, g01, b01)
+    delta = max_c - min_c
+    if delta == 0:
+        hue = 0.0
+    elif max_c == r01:
+        hue = (60 * ((g01 - b01) / delta) + 360) % 360
+    elif max_c == g01:
+        hue = (60 * ((b01 - r01) / delta) + 120) % 360
+    else:
+        hue = (60 * ((r01 - g01) / delta) + 240) % 360
+    sat = 0.0 if max_c == 0 else (delta / max_c) * 100.0
+    return hue, sat
+
+
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: ConfigEntry,
@@ -351,31 +369,57 @@ class DALIRGBCWLightEntity(LightEntity):
         key = (self._light.group, self._light.address)
         self._entity_registry.pop(key, None)
 
-    def handle_feedback(self, brightness: int = None, color_temp_kelvin: int = None,
-                       color_wheel: int = None, saturation: int = None) -> None:
-        """Handle feedback from device."""
+    def handle_feedback(self, status: bool = None, brightness: int = None,
+                       color_temp_kelvin: int = None, color_wheel: int = None,
+                       saturation: int = None, r: int = None, g: int = None,
+                       b: int = None, **kwargs) -> None:
+        """Handle feedback from device.
+
+        Accepts the superset of kwargs the feedback listener may send so no
+        frame is dropped with a ``TypeError``:
+          - status / brightness     (Class 0 brightness frame)
+          - color_temp_kelvin       (Class 1 colour-temperature frame)
+          - color_wheel / saturation (Class 2 / Class 3 colour frame)
+          - r / g / b               (raw RGB frame from an RGBCW light)
+        """
         if brightness is not None:
             self._light.handle_brightness_feedback(brightness)
+        elif status is not None:
+            self._light._is_on = status
+
         if color_temp_kelvin is not None:
             self._light.handle_color_temp_feedback(color_temp_kelvin)
+
+        color_feedback = False
         if color_wheel is not None:
             self._light.handle_color_wheel_feedback(color_wheel)
-            # Switch to HS mode when color wheel feedback received
-            self._attr_color_mode = ColorMode.HS
+            color_feedback = True
         if saturation is not None:
             self._light.handle_saturation_feedback(saturation)
+            color_feedback = True
+        if r is not None and g is not None and b is not None:
+            # Convert RGB -> HS and store as colour-wheel + saturation,
+            # which is how this device exposes colour.
+            hue, sat = _rgb_to_hs(r, g, b)
+            self._light.handle_color_wheel_feedback(int(round(hue / 360.0 * 255)))
+            self._light.handle_saturation_feedback(int(round(sat / 100.0 * 255)))
+            color_feedback = True
+
+        if color_feedback:
+            self._attr_color_mode = ColorMode.HS
         elif color_temp_kelvin is not None:
-            # Switch to COLOR_TEMP mode when CT feedback received
             self._attr_color_mode = ColorMode.COLOR_TEMP
+
         self.schedule_update_ha_state()
         _LOGGER.debug(
-            "RGBCW %s feedback: on=%s bright=%s ct=%s K wheel=0x%02X sat=%d",
+            "RGBCW %s feedback: on=%s bright=%s ct=%s K wheel=%s sat=%s rgb=%s",
             self._light.name,
             self._light.is_on,
             brightness,
             color_temp_kelvin,
-            self._light._color_wheel if color_wheel is not None else 0,
-            self._light._saturation if saturation is not None else 0,
+            color_wheel,
+            saturation,
+            (r, g, b) if r is not None else None,
         )
 
     async def async_turn_on(self, **kwargs) -> None:

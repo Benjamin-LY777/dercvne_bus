@@ -267,6 +267,28 @@ def _get_serial_ports(current_port: str = None, all_connections: list = None) ->
     return ports
 
 
+async def _async_build_serial_port_schema(
+    hass, all_connections: list, errors: dict, current_port: str = None
+):
+    """Build the ``vol`` validator for the serial-port dropdown field.
+
+    Runs the blocking filesystem scan (``_get_serial_ports``) inside the
+    executor so the asyncio event loop is never blocked.  Shared by both the
+    config and options flows so the scan/presentation logic lives in exactly
+    one place.
+
+    Returns a ``vol.In(...)`` validator, or ``str`` when no ports are found
+    (recording a ``no_serial_ports`` error in ``errors``).
+    """
+    port_options = await hass.async_add_executor_job(
+        _get_serial_ports, current_port, all_connections
+    )
+    if not port_options:
+        errors["base"] = "no_serial_ports"
+        return str
+    return vol.In(port_options)
+
+
 def _validate_group(group: str) -> str:
     """Validate a group is a single hex digit 0-F.
 
@@ -434,22 +456,6 @@ class DALIConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._device_temp: Optional[dict] = None  # partial non-keypad data between steps
         self._dup_device_name: Optional[str] = None
 
-    def _build_serial_port_schema(self, errors: dict, current_port: str = None):
-        """Build the vol validator for the serial-port dropdown field.
-
-        Scans available serial ports and returns a ``vol.In(...)`` validator,
-        or ``str`` when none are found (recording a ``no_serial_ports`` error).
-        Shared by every connection step so the scan/presentation logic lives
-        in exactly one place.
-        """
-        port_options = _get_serial_ports(
-            current_port=current_port, all_connections=self._connections
-        )
-        if not port_options:
-            errors["base"] = "no_serial_ports"
-            return str
-        return vol.In(port_options)
-
     # ---- step 1: add first connection ----
 
     async def async_step_user(self, user_input: Optional[Dict[str, Any]] = None):
@@ -502,7 +508,9 @@ class DALIConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             })
         else:
             # Serial only
-            port_validator = self._build_serial_port_schema(errors)
+            port_validator = await _async_build_serial_port_schema(
+                self.hass, self._connections, errors
+            )
 
             schema = vol.Schema({
                 vol.Required("name", default="连接1"): str,
@@ -2419,8 +2427,8 @@ class DALIOptionsFlow(config_entries.OptionsFlow):
             })
         else:
             # Serial: build port options for dropdown
-            port_validator = self._build_serial_port_schema(
-                errors, current_port=current_port
+            port_validator = await _async_build_serial_port_schema(
+                self.hass, self._connections, errors, current_port=current_port
             )
 
             schema = vol.Schema({
@@ -2497,7 +2505,9 @@ class DALIOptionsFlow(config_entries.OptionsFlow):
             })
         else:
             # Serial only: show name, type, serial_port, baudrate
-            port_validator = self._build_serial_port_schema(errors)
+            port_validator = await _async_build_serial_port_schema(
+                self.hass, self._connections, errors
+            )
 
             schema = vol.Schema({
                 vol.Required("name", default=f"连接{len(self._connections) + 1}"): str,
@@ -2564,8 +2574,8 @@ class DALIOptionsFlow(config_entries.OptionsFlow):
             "name": name,
             "device_type": DEVICE_TYPE_VRV_CONTROLLER,
             "connection_id": connection_id,
-            "host": conn.get("host", "") if conn else "",
-            "port": conn.get("port", 0) if conn else 0,
+            "host": conn.get("tcp_host", "") if conn else "",
+            "port": conn.get("tcp_port", 0) if conn else 0,
         })
         return vrv_id
 
@@ -2629,8 +2639,8 @@ class DALIOptionsFlow(config_entries.OptionsFlow):
                         "name": name,
                         "device_type": DEVICE_TYPE_VRV_CONTROLLER,
                         "connection_id": conn_id,
-                        "host": conn.get("host", "") if conn else "",
-                        "port": conn.get("port", 0) if conn else 0,
+                        "host": conn.get("tcp_host", "") if conn else "",
+                        "port": conn.get("tcp_port", 0) if conn else 0,
                     })
                     self._editing_vrv_id = vrv_id
                     return await self.async_step_vrv_action()
@@ -2712,8 +2722,8 @@ class DALIOptionsFlow(config_entries.OptionsFlow):
                     conn_real = next((c for c in self._connections if c["id"] == conn_id), None)
                     if conn_real:
                         self._devices[vrv_idx]["connection_id"] = conn_id
-                        self._devices[vrv_idx]["host"] = conn_real.get("host", "")
-                        self._devices[vrv_idx]["port"] = conn_real.get("port", 0)
+                        self._devices[vrv_idx]["host"] = conn_real.get("tcp_host", "")
+                        self._devices[vrv_idx]["port"] = conn_real.get("tcp_port", 0)
                 return await self.async_step_vrv_action()
 
         return self.async_show_form(
@@ -2781,8 +2791,8 @@ class DALIOptionsFlow(config_entries.OptionsFlow):
         # Resolve connection host from the VRV controller's binding
         conn_id = vrv.get("connection_id", "")
         conn = next((c for c in self._connections if c["id"] == conn_id), None)
-        host = conn.get("host", "") if conn else vrv.get("host", "")
-        port = conn.get("port", 0) if conn else vrv.get("port", 0)
+        host = conn.get("tcp_host", "") if conn else vrv.get("host", "")
+        port = conn.get("tcp_port", 0) if conn else vrv.get("port", 0)
 
         tmp_transport = TCPTransport(host, port)
         try:

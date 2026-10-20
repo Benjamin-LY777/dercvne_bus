@@ -106,9 +106,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             len(thermostat_data),
         )
 
-    # Clean up orphaned switch_as_x helpers left over by device type changes
-    await _cleanup_orphaned_switch_as_x(hass, entry)
-
     # ── Post-setup: remove orphaned device registry entries ──
     # After platforms are reloaded, devices that no longer have any
     # entities (because they were deleted from config) will still have
@@ -122,66 +119,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
 
     return True
-
-
-async def _cleanup_orphaned_switch_as_x(hass, entry):
-    """Remove orphaned switch_as_x helpers after device type changes.
-
-    When a user changes a device's type (e.g. relay -> light), our old
-    entity is removed and a new one is created. But HA's auto-created
-    switch_as_x helper config entries referencing the old entity_id
-    persist as orphans, showing "已隐藏 / hidden" in the UI.
-
-    This function scans all switch_as_x entries and removes any whose
-    source entity no longer exists in the entity registry.
-    """
-    from homeassistant.helpers import entity_registry as er
-
-    try:
-        from homeassistant.components.switch_as_x import DOMAIN as SX_DOMAIN
-    except ImportError:
-        _LOGGER.debug("switch_as_x integration not available, skipping cleanup")
-        return
-
-    registry = er.async_get(hass)
-
-    # Collect current entity IDs that belong to our config entry
-    our_entity_ids = set()
-    for reg_entity in registry.entities.values():
-        if reg_entity.config_entry_id == entry.entry_id:
-            our_entity_ids.add(reg_entity.entity_id)
-
-    removed = 0
-    for sx_entry in list(hass.config_entries.async_entries(SX_DOMAIN)):
-        # switch_as_x stores the wrapped entity_id in data
-        source_entity_id = (
-            sx_entry.data.get("entity_id", "")
-            or sx_entry.options.get("entity_id", "")
-        )
-        if not source_entity_id:
-            continue
-
-        # If the source entity still exists anywhere in registry, it's valid
-        source = registry.async_get(source_entity_id)
-        if source is not None:
-            continue
-
-        # Source entity no longer exists — switch_as_x is orphaned
-        _LOGGER.info(
-            "Removing orphaned switch_as_x helper '%s' (source '%s' no longer exists)",
-            sx_entry.title, source_entity_id,
-        )
-
-        # Remove any entity registry entries created by this switch_as_x
-        for reg_entity in list(registry.entities.values()):
-            if reg_entity.config_entry_id == sx_entry.entry_id:
-                registry.async_remove(reg_entity.entity_id)
-
-        await hass.config_entries.async_remove(sx_entry.entry_id)
-        removed += 1
-
-    if removed:
-        _LOGGER.info("Cleaned up %d orphaned switch_as_x helper(s)", removed)
 
 
 async def _cleanup_orphaned_devices(hass, entry):
@@ -518,26 +455,13 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry.
 
     Always cleans up internal state (tasks, transports) regardless of
-    platform unload success.  Lingering entity registry entries are also
-    removed as a safety net.
-
-    Device registry entries are NOT touched here — they are cleaned up
-    on the next async_setup_entry so existing device_ids survive reload.
+    platform unload success.  Registry entries are intentionally left
+    untouched here: entity and device registry entries are owned by Home
+    Assistant (and the user), so they are preserved across reloads to keep
+    renamed entity IDs, areas and automation references intact.
     """
-    from homeassistant.helpers import entity_registry as er
-
     entry_id = entry.entry_id
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
-
-    # ── Safety net: remove lingering entity registry entries ──
-    ent_registry = er.async_get(hass)
-    for entity_entry in list(ent_registry.entities.values()):
-        if entity_entry.config_entry_id == entry_id:
-            ent_registry.async_remove(entity_entry.entity_id)
-            _LOGGER.debug(
-                "Removed lingering entity registry entry: %s",
-                entity_entry.entity_id,
-            )
 
     # ── Always clean up our internal state ──
     entry_data = hass.data[DOMAIN].pop(entry_id, {})
